@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="fastlane.lanes">
+    
+      
+      <testcase classname="fastlane.lanes" name="0: Verifying required fastlane version" time="0.000635">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="1: default_platform" time="0.000271">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="2: gradle" time="1.765729">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="3: gradle" time="14.205853">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="4: sign_apk" time="7.663368">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="5: zipalign" time="0.139349">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="6: gradle" time="24.350564">
+        
+      </testcase>
+    
+  </testsuite>
+</testsuites>

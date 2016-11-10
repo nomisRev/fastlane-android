@@ -8,21 +8,21 @@ module Fastlane
       def self.run(params)
 
        UI.user_error!("Couldn't find '*release.apk' file at path 'app/build/outputs/apk/'") unless params[:apk_path]
+       zipalign_path = 'find ~/Library/Android/sdk/build-tools/ -name "zipalign" | tail -1'
 
        error_callback = proc do |error|
          new_name = params[:apk_path].gsub('.apk', '-unaligned.apk')
-         rename_command = ["mv -n",params[:apk_path],new_name]
+         rename_command = ["mv -n", params[:apk_path], new_name]
          Fastlane::Actions.sh(rename_command, log: false)
 
-         aligncmd = ["zipalign -v -f 4", new_name , " ", params[:apk_path] ]
-         Fastlane::Actions.sh(aligncmd, log: true)
+         aligncmd = Fastlane::Actions.sh("$( #{zipalign_path} ) -v -f 4 #{new_name} #{params[:apk_path]}", log: false)
 
          return
         end
 
-       zipalign = Fastlane::Actions.sh("zipalign -c -v 4 #{params[:apk_path]}", log: false , error_callback: error_callback)
+      zipalign = Fastlane::Actions.sh("$( #{zipalign_path} ) -c -v 4 #{params[:apk_path]}", log: false , error_callback: error_callback)
     
-       UI.message('Input apk is aligned')
+      UI.message('Input apk is aligned')
 
      end 
       #####################################################

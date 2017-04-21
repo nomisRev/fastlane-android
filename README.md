@@ -1,5 +1,7 @@
 # Fastlane Android
 
+Proposal to Integrate this into https://github.com/knocknarea/fastlane-plugin-ionic_integration
+
 While improving our continuous delivery system we decided to streamline the process for iOS and Android. Since our iOS team enjoyed using fastlane we decided to give it a try for Android as well.
 
 If you take a look at the [fastlane](https://fastlane.tools) page you will notice that there are currently only 2 Android tools. `Supply` and `Screengrab`, both neat actions to automate uploading your app to Google play. But we wanted to do some more automating. Before you can upload an app to Google Play you need a signed and zip-aligned APK. As most Android developers know building an app ready for uploading to the store can be tedious. There are a few ways to do so.

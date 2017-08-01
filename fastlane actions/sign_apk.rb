@@ -19,12 +19,16 @@ module Fastlane
         UI.user_error!("Couldn't find '#{SignApkAction::DEFAULT_APK_PATH}'") unless apk_path
         UI.user_error!('Need keystore in order to sign apk') unless keystore
 
+        # avoid showing passwords in log
+        ENV['STORE_PASS'] = storepass
+        ENV['KEY_PASS'] = keypass
+
         sign_cmd = ['jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1']
         sign_cmd << "-keystore #{keystore}"
         sign_cmd << apk_path
         sign_cmd << key_alias if key_alias
-        sign_cmd << "-keypass #{keypass}" if keypass
-        sign_cmd << "-storepass #{storepass}" if storepass
+        sign_cmd << '-keypass "$KEY_PASS"' if keypass
+        sign_cmd << '-storepass "$STORE_PASS"' if storepass
         sign_cmd << "-tsa #{tsa}" if tsa
 
         if not signed_apk_path and apk_path.include?('unsigned')

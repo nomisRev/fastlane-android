@@ -5,49 +5,67 @@ module Fastlane
     end
 
     class ZipalignAction < Action
+      DEFAULT_APK_PATH = File.join('app', 'build', 'outputs', 'apk', '*release.apk')
+
       def self.run(params)
+        apk_path = params[:apk_path]
+        UI.user_error!("Couldn't find #{ZipalignAction::DEFAULT_APK_PATH}") unless apk_path
 
-       UI.user_error!("Couldn't find '*release.apk' file at path 'app/build/outputs/apk/'") unless params[:apk_path]
-       zipalign_path = 'find ~/Library/Android/sdk/build-tools/ -name "zipalign" | tail -1'
+        android_sdk_paths = [
+          ENV['ANDROID_HOME'],
+          ENV['ANDROID_SDK_ROOT'],
+          '/usr/local/Cellar/android-sdk',
+          '/Library/Android/sdk',
+          '~/Library/Android/sdk',
+          '/opt/android-sdk',
+          '/usr/lib/android-sdk',
+          '/opt/android-sdk-linux'
+        ].compact
 
-       error_callback = proc do |error|
-         new_name = params[:apk_path].gsub('.apk', '-unaligned.apk')
-         rename_command = ["mv -n", params[:apk_path], new_name]
-         Fastlane::Actions.sh(rename_command, log: false)
+        zipalign = nil
+        android_sdk_paths.each {|path|
+          zipalign = Dir[File.join(path, '**', 'zipalign')].last
+          break if zipalign
+        }
+        UI.user_error!("Couldn't find zipalign in #{android_sdk_paths.join(', ')}") unless zipalign
 
-         aligncmd = Fastlane::Actions.sh("$( #{zipalign_path} ) -v -f 4 #{new_name} #{params[:apk_path]}", log: false)
+        cmd = [zipalign, '-c 4', apk_path]
+        Fastlane::Actions.sh(cmd, log: false, error_callback: -> (_) {
+          new_name = apk_path.gsub('.apk', '-unaligned.apk')
+          File.rename(apk_path, new_name)
 
-         return
-        end
+          cmd = [zipalign, '-v -f 4', new_name, apk_path]
+          Fastlane::Actions.sh(cmd, log: true)
+        })
 
-      zipalign = Fastlane::Actions.sh("$( #{zipalign_path} ) -c -v 4 #{params[:apk_path]}", log: false , error_callback: error_callback)
-    
-      UI.message('Input apk is aligned')
+        UI.message('Input apk is aligned')
+      end
 
-     end 
       #####################################################
       # @!group Documentation
       #####################################################
-
       def self.description
         "Zipalign an apk. Input apk is renamed '*-unaligned.apk'"
       end
 
       def self.available_options
-
-        apk_path_default = Dir["*.apk"].last || Dir[File.join("app", "build", "outputs", "apk", "*release.apk")].last
+        apk_path_default =
+          Actions.lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH] ||
+          Dir['*.apk' || ZipalignAction::DEFAULT_APK_PATH].last
 
         [
-          FastlaneCore::ConfigItem.new(key: :apk_path,
-                                       env_name: "INPUT_APK_PATH",
-                                       description: "Path to your APK file that you want to align",
-                                       default_value: Actions.lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH] || apk_path_default,
-                                       optional: true)
+          FastlaneCore::ConfigItem.new(
+            key: :apk_path,
+            env_name: 'INPUT_APK_PATH',
+            description: 'Path to your APK file that you want to align',
+            default_value: apk_path_default,
+            optional: true
+          )
         ]
       end
 
       def self.authors
-        ["nomisRev"]
+        'nomisRev'
       end
 
       def self.is_supported?(platform)

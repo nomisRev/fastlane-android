@@ -49,8 +49,8 @@ module Fastlane
       def self.available_options
         apk_path_default =
           Actions.lane_context[SharedValues::GRADLE_APK_OUTPUT_PATH] ||
-	  Dir['*.apk'].last ||
-	  Dir[SignApkAction::DEFAULT_APK_PATH].last
+          Dir['*.apk'].last ||
+          Dir[SignApkAction::DEFAULT_APK_PATH].last
 
         [
           FastlaneCore::ConfigItem.new(
